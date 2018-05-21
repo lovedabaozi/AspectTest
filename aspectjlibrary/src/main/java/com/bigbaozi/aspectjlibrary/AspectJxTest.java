@@ -3,6 +3,7 @@ package com.bigbaozi.aspectjlibrary;
 import android.util.Log;
 
 import com.bigbaozi.aspectjlibrary.annotation.CountTime;
+import com.bigbaozi.aspectjlibrary.interf.ICountTime;
 
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -21,7 +22,7 @@ import java.lang.reflect.Method;
 
 @Aspect
 public class AspectJxTest {
-    public  static final String  COUNT_TIME="execution(@com.bigbaozi.aspectjlibrary.annotation.CountTime * *(..))";
+    public static final String COUNT_TIME = "execution(@com.bigbaozi.aspectjlibrary.annotation.CountTime * *(..))";
 
     /**
      *  after 使用  在方法后使用， execution
@@ -36,14 +37,11 @@ public class AspectJxTest {
 
 
     /**
-     *
-     ()	表示方法没有任何参数
-     (..)	表示匹配接受任意个参数的方法
-     (..,java.lang.String)	表示匹配接受java.lang.String类型的参数结束，且其前边可以接受有任意个参数的方法
-     (java.lang.String,..)	表示匹配接受java.lang.String类型的参数开始，且其后边可以接受任意个参数的方法
-     (*,java.lang.String)	表示匹配接受java.lang.String类型的参数结束，且其前边接受有一个任意类型参数的方法
-     *
-     *
+     * ()	表示方法没有任何参数
+     * (..)	表示匹配接受任意个参数的方法
+     * (..,java.lang.String)	表示匹配接受java.lang.String类型的参数结束，且其前边可以接受有任意个参数的方法
+     * (java.lang.String,..)	表示匹配接受java.lang.String类型的参数开始，且其后边可以接受任意个参数的方法
+     * (*,java.lang.String)	表示匹配接受java.lang.String类型的参数结束，且其前边接受有一个任意类型参数的方法
      */
 
 
@@ -75,10 +73,7 @@ public class AspectJxTest {
         Log.e("AAA","after"+s);
     }
 */
-   // @Pointcut(COUNT_TIME + " && @annotation()")
-
-
-
+    // @Pointcut(COUNT_TIME + " && @annotation()")
     @Pointcut(COUNT_TIME)
     public void DebugCountTime() {
 
@@ -87,29 +82,31 @@ public class AspectJxTest {
     @Around("DebugCountTime()")
     public void onDebugCountTimeMethodBefore(ProceedingJoinPoint joinPoint) throws Throwable {
         Object object = joinPoint.getThis();
-        if(object==null)return;
+        if (object == null) return;
         Class<?> aClass = object.getClass();
         Method[] methods = aClass.getMethods();
-        if(methods==null||methods.length==0)return;
-        for (Method method :methods){
+        if (methods == null || methods.length == 0) return;
+        for (Method method : methods) {
             boolean annotationPresent = method.isAnnotationPresent(CountTime.class);
-            if(annotationPresent){
+            if (annotationPresent) {
                 System.nanoTime();
                 CountTime annotation = method.getAnnotation(CountTime.class);
                 String[] value = annotation.value();
                 String methodName = value[0];
-                if(joinPoint.getSignature().toString().endsWith(methodName+"()")){
+                if (joinPoint.getSignature().toString().endsWith(methodName + "()")) {
                     long timeMillis = System.currentTimeMillis();
                     joinPoint.proceed();
                     long timeMillis2 = System.currentTimeMillis();
-                    Log.e("AAA",  "方法"+methodName+"的耗时间为："+(timeMillis2-timeMillis)+"ms" );
+                    ICountTime CTLister= (ICountTime) object;
+
+                    Log.e("AAA", "方法" + methodName + "的耗时间为：" + (timeMillis2 - timeMillis) + "ms");
+                    CTLister.GetTimes(methodName,(timeMillis2 - timeMillis));
                 }
 
             }
         }
 
     }
-
 
 
 }
