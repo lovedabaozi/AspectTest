@@ -1,9 +1,14 @@
 package com.bigbaozi.aspectjlibrary;
 
+import android.app.Activity;
+import android.app.Fragment;
+import android.content.Context;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.bigbaozi.aspectjlibrary.annotation.CountTime;
 import com.bigbaozi.aspectjlibrary.interf.ICountTime;
+import com.bigbaozi.aspectjlibrary.utils.NoDoubleClickUtils;
 
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -23,59 +28,27 @@ import java.lang.reflect.Method;
 @Aspect
 public class AspectJxTest {
     public static final String COUNT_TIME = "execution(@com.bigbaozi.aspectjlibrary.annotation.CountTime * *(..))";
-
-    /**
-     *  after 使用  在方法后使用， execution
-     * @param joinPoint
-     */
-   /*@After("execution (*android.support.v7.app.AppCompatActivity.onCreate(..))")
-    public  void  OnActivityBefore(JoinPoint joinPoint){
-
-        String s = joinPoint.getSignature().toString();
-        Log.e("AAA","OnActivityBefore="+s);
-    }*/
+    /**  点击事件重复防止 */
+    public  static  final String SINGLE_CLICK="execution(* android.view.View.OnClickListener.onClick(..))";
 
 
-    /**
-     * ()	表示方法没有任何参数
-     * (..)	表示匹配接受任意个参数的方法
-     * (..,java.lang.String)	表示匹配接受java.lang.String类型的参数结束，且其前边可以接受有任意个参数的方法
-     * (java.lang.String,..)	表示匹配接受java.lang.String类型的参数开始，且其后边可以接受任意个参数的方法
-     * (*,java.lang.String)	表示匹配接受java.lang.String类型的参数结束，且其前边接受有一个任意类型参数的方法
-     */
 
-
- /*@After("execution(* android.app.Activity.on**(..))")
-    public void onResumeMethod(JoinPoint joinPoint) throws Throwable {
-        Log.e("AAA", "aspect:::" + joinPoint.getSignature());
-    }
-
-   @After("execution (* com.bigbaozi.aspecttest.MainActivity.Hello())")
-   public  void  OnHello(JoinPoint joinPoint){
-       String s = joinPoint.getSignature().toString();
-        long timeMillis = System.currentTimeMillis();
-        Log.e("AAA","After="+s+timeMillis);
-   }
-
-  @Before("execution (* com.bigbaozi.aspecttest.MainActivity.Hello())")
-    public  void  Hello(JoinPoint joinPoint){
-        String s = joinPoint.getSignature().toString();
-
-        long Before = System.currentTimeMillis();
-        Log.e("AAA","Before="+s+Before);
-    }
-
-   @Around("execution(* com.bigbaozi.aspecttest.MainActivity.Around())")
-    public  void  AroudMethod(ProceedingJoinPoint proceedingJoinPoint) throws Throwable {
-        String s = proceedingJoinPoint.getSignature().toString();
-        Log.e("AAA","before"+s);
-        proceedingJoinPoint.proceed();
-        Log.e("AAA","after"+s);
-    }
-*/
-    // @Pointcut(COUNT_TIME + " && @annotation()")
     @Pointcut(COUNT_TIME)
     public void DebugCountTime() {
+
+    }
+
+
+   @Pointcut(SINGLE_CLICK)
+    public void  SingleClick(){
+
+    }
+
+    @Around("SingleClick()")
+    public  void onSingleClick(ProceedingJoinPoint joinPoint) throws Throwable {
+
+        if(!NoDoubleClickUtils.isDoubleClick()) joinPoint.proceed();
+
 
     }
 
@@ -89,7 +62,6 @@ public class AspectJxTest {
         for (Method method : methods) {
             boolean annotationPresent = method.isAnnotationPresent(CountTime.class);
             if (annotationPresent) {
-                System.nanoTime();
                 CountTime annotation = method.getAnnotation(CountTime.class);
                 String[] value = annotation.value();
                 String methodName = value[0];
