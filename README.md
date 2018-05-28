@@ -1,7 +1,7 @@
 ## 基于Aspectjx 实现的Android 计时工具--AOP 思想
 
 
-### 使用步骤
+### 添加步骤
 
 - 在项目根目录build.gradle中添加：
 
@@ -25,12 +25,19 @@ apply plugin: 'android-aspectjx'
 添加依赖：
 
 ```
-compile 'com.dabaozi:CountTime_aop:1.0.1'
+compile 'com.dabaozi:CountTime_aop:1.0.2'
 ```
 
-- 使用
+### 版本
 
-如下在方法上添加计时注解：
+- V1.0.1 基础功能-计时。
+- V1.0.2 添加 点击事件防抖动。
+
+### 使用
+
+- android.view.View.OnClickListener.onClick(..))点击事件防抖动，时间间隔1s。
+
+- 如下在方法上添加计时注解：
 
 ```
    @CountTime("Hello")
